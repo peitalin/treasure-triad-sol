@@ -13,16 +13,16 @@ class TreasureTriad:
         self.cols = size
         if size == 3:
             self.grid = [
-                [None, None, None],
-                [None, None, None],
-                [None, None, None],
+                [{ "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}],
+                [{ "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}],
+                [{ "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}],
             ]
         elif size ==4:
             self.grid = [
-                [None, None, None, None],
-                [None, None, None, None],
-                [None, None, None, None],
-                [None, None, None, None],
+                [{ "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}],
+                [{ "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}],
+                [{ "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}],
+                [{ "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}],
             ]
         # 3x3 or 4x4 grid
         # grid is zero-indexed
@@ -45,11 +45,11 @@ class TreasureTriad:
         self.converted_cards = converted_cards
 
 
-    def stake_treasure(self, treasure=None, coords=(0,0)):
+    def stake_treasure(self, treasure={ "treasure": None, "player": None}, coords=(0,0)):
         row = coords[0]
         col = coords[1]
 
-        if self.grid[row][col] is None:
+        if self.grid[row][col]['treasure'] is None:
             self.grid[row][col] = treasure
             self.flip_adjacent_cells(coords=coords, player=treasure['player'])
         else:
@@ -71,7 +71,8 @@ class TreasureTriad:
         assert 0 <= col < self.cols
 
         _current_card = self.grid[row][col]
-        current_card = CARDS[_current_card['treasure']] if _current_card else None
+        current_card = CARDS[_current_card['treasure']] if _current_card['treasure'] else None
+        print('current', current_card)
 
         if current_card is None:
             return
@@ -80,28 +81,28 @@ class TreasureTriad:
             # check card above is in the grid
             if row-1 >= 0:
                 above = self.grid[row-1][col]
-                if above:
+                if above['treasure']:
                     return CARDS[above['treasure']]
 
         def card_below_treasure(row, col):
             # check card below is in the grid
             if row+1 <= self.cols-1:
                 below = self.grid[row+1][col]
-                if below:
+                if below['treasure']:
                     return CARDS[below['treasure']]
 
         def card_left_of_treasure(row, col):
             # check card to left is in the grid
             if col-1 >= 0:
                 left = self.grid[row][col-1]
-                if left:
+                if left['treasure']:
                     return CARDS[left['treasure']]
 
         def card_right_of_treasure(row, col):
             # check card to right is in the grid
             if col+1 <= self.rows-1:
                 right = self.grid[row][col+1]
-                if right:
+                if right['treasure']:
                     return CARDS[right['treasure']]
 
 

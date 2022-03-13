@@ -33,7 +33,7 @@ def blue(s):
 
 
 def render_card(card={ 'treasure': 'grin', 'player': 'blue'}):
-    if card is None:
+    if card is None or card['treasure'] is None:
         return {
             'treasure': fmt_treasure(''),
             'n': ' ',
