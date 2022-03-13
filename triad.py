@@ -1,22 +1,48 @@
 
 import numpy as np
 from params import CARDS
-from render import render_grid
+from render import render_grid_3x3, render_grid_4x4
 
 
 
 class TreasureTriad:
 
-    def __init__(self):
-        self.grid = [
-            [None, None, None],
-            [None, None, None],
-            [None, None, None],
-        ]
+    def __init__(self, size=3):
+        assert size == 3 or size == 4
+        self.rows = size
+        self.cols = size
+        if size == 3:
+            self.grid = [
+                [None, None, None],
+                [None, None, None],
+                [None, None, None],
+            ]
+        elif size ==4:
+            self.grid = [
+                [None, None, None, None],
+                [None, None, None, None],
+                [None, None, None, None],
+                [None, None, None, None],
+            ]
+        # 3x3 or 4x4 grid
+        # grid is zero-indexed
+        self.converted_cards = 0
 
     def __repr__(self):
-        render_grid(self.grid)
+        if self.rows == 3:
+            render_grid_3x3(self.grid)
+        elif self.rows == 4:
+            render_grid_4x4(self.grid)
+        # print("Converted Cards: ", self.converted_cards)
         return ''
+
+    def count_converted_cards(self):
+        converted_cards = 0
+        for row in self.grid:
+            for cell in row:
+                if cell['player'] == 'blue':
+                    converted_cards += 1
+        self.converted_cards = converted_cards
 
 
     def stake_treasure(self, treasure=None, coords=(0,0)):
@@ -30,15 +56,19 @@ class TreasureTriad:
             # throw error
             print('Slot occupied!')
 
-        render_grid(self.grid)
+        if self.rows == 3:
+            render_grid_3x3(self.grid)
+        elif self.rows == 4:
+            render_grid_4x4(self.grid)
+
 
 
     def flip_adjacent_cells(self, coords=(0,0), player='blue'):
         row = coords[0]
         col = coords[1]
 
-        assert 0 <= row < 3
-        assert 0 <= col < 3
+        assert 0 <= row < self.rows
+        assert 0 <= col < self.cols
 
         _current_card = self.grid[row][col]
         current_card = CARDS[_current_card['treasure']] if _current_card else None
@@ -47,25 +77,29 @@ class TreasureTriad:
             return
 
         def card_above_treasure(row, col):
+            # check card above is in the grid
             if row-1 >= 0:
                 above = self.grid[row-1][col]
                 if above:
                     return CARDS[above['treasure']]
 
         def card_below_treasure(row, col):
-            if row+1 <= 2:
+            # check card below is in the grid
+            if row+1 <= self.cols-1:
                 below = self.grid[row+1][col]
                 if below:
                     return CARDS[below['treasure']]
 
         def card_left_of_treasure(row, col):
+            # check card to left is in the grid
             if col-1 >= 0:
                 left = self.grid[row][col-1]
                 if left:
                     return CARDS[left['treasure']]
 
         def card_right_of_treasure(row, col):
-            if col+1 <= 2:
+            # check card to right is in the grid
+            if col+1 <= self.rows-1:
                 right = self.grid[row][col+1]
                 if right:
                     return CARDS[right['treasure']]
