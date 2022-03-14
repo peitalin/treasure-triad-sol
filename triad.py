@@ -109,7 +109,7 @@ class TreasureTriad:
         ## Try flip Card ABOVE
         card_above = getCardAboveTreasure(row, col)
         if card_above:
-            # compare top of current card to bottom of card above
+            # compare north of current card to south of card above
             if current_card['n'] > card_above['s']:
                 # if score on staked card is bigger, flip the card to new player
                 self.grid[row-1][col]['player'] = player
@@ -117,7 +117,7 @@ class TreasureTriad:
         ## Try flip Card BELOW
         card_below = getCardBelowTreasure(row, col)
         if card_below:
-            # compare bottom of current card to top of card below
+            # compare south of current card to north of card below
             if current_card['s'] > card_below['n']:
                 self.grid[row+1][col]['player'] = player
 

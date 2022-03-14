@@ -4,8 +4,8 @@ import time
 T = 0.75
 
 
-# size = 3
-size = 4
+size = 3
+# size = 4
 tt = TreasureTriad(size=size)
 ## Coords are zero-indexed
 
