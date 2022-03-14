@@ -16,27 +16,27 @@ enum Player {
 
 describe("TreasureTriad", function () {
 
-  // declare some variables, and assign them in the `before` and `beforeEach` callbacks.
-  let TreasureTriad
-  let TreasureTriadCardStats
-	let tTriad: TreasureTriad
-	let ttCardStats: TreasureTriadCardStats
-  let owner
-  let addr1
-	let addrs
+    // declare some variables, and assign them in the `before` and `beforeEach` callbacks.
+    let TreasureTriad
+    let TreasureTriadCardStats
+    let tTriad: TreasureTriad
+    let ttCardStats: TreasureTriadCardStats
+    let owner
+    let addr1
+    let addrs
 
-  // `beforeEach` runs before each test, re-deploying the contract every time.
-  beforeEach(async function () {
-    // Get the ContractFactory and Signers here.
-    TreasureTriad = await ethers.getContractFactory("TreasureTriad");
-		TreasureTriadCardStats = await ethers.getContractFactory("TreasureTriadCardStats");
-    [owner, addr1, ...addrs] = await ethers.getSigners();
+    // `beforeEach` runs before each test, re-deploying the contract every time.
+    beforeEach(async function () {
+        // Get the ContractFactory and Signers here.
+        TreasureTriad = await ethers.getContractFactory("TreasureTriad");
+        TreasureTriadCardStats = await ethers.getContractFactory("TreasureTriadCardStats");
+        [owner, addr1, ...addrs] = await ethers.getSigners();
 
-		let gridSize = 3
-    tTriad = await TreasureTriad.deploy();
-		await tTriad.initialize(gridSize);
-    ttCardStats = await TreasureTriadCardStats.deploy();
-  });
+        let gridSize = 3
+        tTriad = await TreasureTriad.deploy();
+        await tTriad.initialize(gridSize);
+        ttCardStats = await TreasureTriadCardStats.deploy();
+    });
 
 
 	it("Lookup cards [ox, cow, donkey] have correct stats", async function () {
@@ -51,7 +51,7 @@ describe("TreasureTriad", function () {
 			console.log(e)
 		}
 		try {
-		await tTriad.stakeTreasureCard(0, 2, "donkey");
+            await tTriad.stakeTreasureCard(0, 2, "donkey");
 		} catch(e) {
 			console.log(e)
 		}
@@ -217,8 +217,6 @@ describe("TreasureTriad", function () {
 		expect(c21.treasure).to.equal("immovable stone")
 		expect(c21.player).to.equal(Player.nature)
 	})
-
-
 
 })
 
