@@ -7,9 +7,9 @@ import { TreasureTriadCardStats } from "../typechain-types/TreasureTriadCardStat
 
 
 enum Player {
-	nature = 0,
-	user = 1,
-	none = 2,
+    nature = 0,
+    user = 1,
+    none = 2,
 }
 
 
