@@ -30,7 +30,6 @@ contract TreasureTriadCardStats {
             name: ""
         });
 
-
         cards['honeycomb'] = CardStats({
             n: 2,
             e: 8,
