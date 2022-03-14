@@ -32,7 +32,7 @@ def blue(s):
     return colored(s, 'blue')
 
 
-def render_card(card={ 'treasure': 'grin', 'player': 'blue'}):
+def render_card(card={ 'treasure': 'grin', 'player': 'user'}):
     if card is None or card['treasure'] is None:
         return {
             'treasure': fmt_treasure(''),
@@ -49,7 +49,7 @@ def render_card(card={ 'treasure': 'grin', 'player': 'blue'}):
         'e': blue(CARDS[t]['e']),
         's': blue(CARDS[t]['s']),
         'w': blue(CARDS[t]['w']),
-    } if card['player'] == 'blue' else {
+    } if card['player'] == 'user' else {
         'treasure': fmt_treasure(t),
         'n': red(CARDS[t]['n']),
         'e': red(CARDS[t]['e']),

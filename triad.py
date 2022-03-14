@@ -9,8 +9,8 @@ class TreasureTriad:
 
     def __init__(self, size=3):
         assert size == 3 or size == 4
-        self.rows = size
-        self.cols = size
+        self.gridRows = size
+        self.gridCols = size
         if size == 3:
             self.grid = [
                 [{ "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}],
@@ -40,7 +40,7 @@ class TreasureTriad:
         converted_cards = 0
         for row in self.grid:
             for cell in row:
-                if cell['player'] == 'blue':
+                if cell['player'] == 'user':
                     converted_cards += 1
         self.converted_cards = converted_cards
 
@@ -51,24 +51,24 @@ class TreasureTriad:
 
         if self.grid[row][col]['treasure'] is None:
             self.grid[row][col] = treasure
-            self.flip_adjacent_cells(coords=coords, player=treasure['player'])
+            self.try_flip_adjacent_cards(coords=coords, player=treasure['player'])
         else:
             # throw error
             print('Slot occupied!')
 
-        if self.rows == 3:
+        if self.gridRows == 3:
             render_grid_3x3(self.grid)
-        elif self.rows == 4:
+        elif self.gridRows == 4:
             render_grid_4x4(self.grid)
 
 
 
-    def flip_adjacent_cells(self, coords=(0,0), player='blue'):
+    def try_flip_adjacent_cards(self, coords=(0,0), player='user'):
         row = coords[0]
         col = coords[1]
 
-        assert 0 <= row < self.rows
-        assert 0 <= col < self.cols
+        assert 0 <= row < self.gridRows
+        assert 0 <= col < self.gridCols
 
         _current_card = self.grid[row][col]
         current_card = CARDS[_current_card['treasure']] if _current_card['treasure'] else None
@@ -77,63 +77,63 @@ class TreasureTriad:
         if current_card is None:
             return
 
-        def card_above_treasure(row, col):
+        def getCardAboveTreasure(row, col):
             # check card above is in the grid
             if row-1 >= 0:
                 above = self.grid[row-1][col]
                 if above['treasure']:
                     return CARDS[above['treasure']]
 
-        def card_below_treasure(row, col):
+        def getCardBelowTreasure(row, col):
             # check card below is in the grid
-            if row+1 <= self.cols-1:
+            if row+1 < self.gridRows-1:
                 below = self.grid[row+1][col]
                 if below['treasure']:
                     return CARDS[below['treasure']]
 
-        def card_left_of_treasure(row, col):
+        def getCardLeftOfTreasure(row, col):
             # check card to left is in the grid
             if col-1 >= 0:
                 left = self.grid[row][col-1]
                 if left['treasure']:
                     return CARDS[left['treasure']]
 
-        def card_right_of_treasure(row, col):
+        def getCardRightOfTreasure(row, col):
             # check card to right is in the grid
-            if col+1 <= self.rows-1:
+            if col+1 < self.gridCols-1:
                 right = self.grid[row][col+1]
                 if right['treasure']:
                     return CARDS[right['treasure']]
 
 
-        ## Check Card ABOVE
-        card_above = card_above_treasure(row, col)
+        ## Try flip Card ABOVE
+        card_above = getCardAboveTreasure(row, col)
         if card_above:
             # compare top of current card to bottom of card above
             if current_card['n'] > card_above['s']:
                 # if score on staked card is bigger, flip the card to new player
                 self.grid[row-1][col]['player'] = player
 
-        ## Check Card BELOW
-        card_below = card_below_treasure(row, col)
+        ## Try flip Card BELOW
+        card_below = getCardBelowTreasure(row, col)
         if card_below:
             # compare bottom of current card to top of card below
             if current_card['s'] > card_below['n']:
                 self.grid[row+1][col]['player'] = player
 
-        ## Check Card on the RIGHT
-        card_on_the_right = card_right_of_treasure(row, col)
-        if card_on_the_right:
-            # compare east-side of current card to west-side of card on the right
-            if current_card['e'] > card_on_the_right['w']:
-                self.grid[row][col+1]['player'] = player
-
-        ## Check Card on the LEFT
-        card_on_the_left = card_left_of_treasure(row, col)
+        ## Try flip Card on the LEFT
+        card_on_the_left = getCardLeftOfTreasure(row, col)
         if card_on_the_left:
             # compare west-side of current card to east-side of card on the left
             if current_card['w'] > card_on_the_left['e']:
                 self.grid[row][col-1]['player'] = player
+
+        ## Try flip Card on the RIGHT
+        card_on_the_right = getCardRightOfTreasure(row, col)
+        if card_on_the_right:
+            # compare east-side of current card to west-side of card on the right
+            if current_card['e'] > card_on_the_right['w']:
+                self.grid[row][col+1]['player'] = player
 
 
 

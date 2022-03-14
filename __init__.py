@@ -9,57 +9,57 @@ size = 4
 tt = TreasureTriad(size=size)
 ## Coords are zero-indexed
 
-tt.stake_treasure({'treasure': 'dragon tail', 'player': 'red'}, coords=(0,1))
+tt.stake_treasure({'treasure': 'dragon tail', 'player': 'nature'}, coords=(0,1))
 time.sleep(T)
 
 # flip left
-tt.stake_treasure({'treasure': 'honeycomb', 'player': 'blue'}, coords=(0,0))
+tt.stake_treasure({'treasure': 'honeycomb', 'player': 'user'}, coords=(0,0))
 time.sleep(T)
 
-tt.stake_treasure({'treasure': 'grin', 'player': 'red'}, coords=(1,0))
+tt.stake_treasure({'treasure': 'grin', 'player': 'nature'}, coords=(1,0))
 time.sleep(T)
 
 # flip right
-tt.stake_treasure({'treasure': 'ox', 'player': 'blue'}, coords=(1,2))
+tt.stake_treasure({'treasure': 'ox', 'player': 'user'}, coords=(1,2))
 time.sleep(T)
 
 # flip below
-tt.stake_treasure({'treasure': 'bottomless elixer', 'player': 'red'}, coords=(0,2))
+tt.stake_treasure({'treasure': 'bottomless elixer', 'player': 'nature'}, coords=(0,2))
 time.sleep(T)
 
 # flip above
-tt.stake_treasure({'treasure': 'donkey', 'player': 'blue'}, coords=(1,1))
+tt.stake_treasure({'treasure': 'donkey', 'player': 'user'}, coords=(1,1))
 time.sleep(T)
 
-tt.stake_treasure({'treasure': 'small bird', 'player': 'red'}, coords=(2,2))
+tt.stake_treasure({'treasure': 'small bird', 'player': 'nature'}, coords=(2,2))
 time.sleep(T)
 
-tt.stake_treasure({'treasure': 'immovable stone', 'player': 'blue'}, coords=(2,1))
+tt.stake_treasure({'treasure': 'immovable stone', 'player': 'user'}, coords=(2,1))
 time.sleep(T)
 
-tt.stake_treasure({'treasure': 'red feather', 'player': 'red'}, coords=(2,0))
+tt.stake_treasure({'treasure': 'red feather', 'player': 'nature'}, coords=(2,0))
 time.sleep(T)
 
 if size == 4:
-    tt.stake_treasure({'treasure': 'castle', 'player': 'blue'}, coords=(3,2))
+    tt.stake_treasure({'treasure': 'castle', 'player': 'user'}, coords=(3,2))
     time.sleep(T)
 
-    tt.stake_treasure({'treasure': 'ancient relic', 'player': 'red'}, coords=(3,3))
+    tt.stake_treasure({'treasure': 'ancient relic', 'player': 'nature'}, coords=(3,3))
     time.sleep(T)
 
-    tt.stake_treasure({'treasure': 'military stipend', 'player': 'blue'}, coords=(3,1))
+    tt.stake_treasure({'treasure': 'military stipend', 'player': 'user'}, coords=(3,1))
     time.sleep(T)
 
-    tt.stake_treasure({'treasure': 'cap of invisibility', 'player': 'red'}, coords=(3,0))
+    tt.stake_treasure({'treasure': 'cap of invisibility', 'player': 'nature'}, coords=(3,0))
     time.sleep(T)
 
-    tt.stake_treasure({'treasure': 'pot of gold', 'player': 'blue'}, coords=(1,3))
+    tt.stake_treasure({'treasure': 'pot of gold', 'player': 'user'}, coords=(1,3))
     time.sleep(T)
 
-    tt.stake_treasure({'treasure': 'lumber', 'player': 'red'}, coords=(2,3))
+    tt.stake_treasure({'treasure': 'lumber', 'player': 'nature'}, coords=(2,3))
     time.sleep(T)
 
-    tt.stake_treasure({'treasure': 'common bead', 'player': 'blue'}, coords=(0,3))
+    tt.stake_treasure({'treasure': 'common bead', 'player': 'user'}, coords=(0,3))
 
 
 
