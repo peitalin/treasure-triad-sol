@@ -6,6 +6,7 @@ triad_sol/.env
 triad_sol/coverage
 triad_sol/coverage.json
 triad_sol/typechain
+triad_sol/typechain-types/
 
 #Hardhat files
 triad_sol/cache
