@@ -86,7 +86,7 @@ class TreasureTriad:
 
         def getCardBelowTreasure(row, col):
             # check card below is in the grid
-            if row+1 < self.gridRows-1:
+            if row+1 <= self.gridRows-1:
                 below = self.grid[row+1][col]
                 if below['treasure']:
                     return CARDS[below['treasure']]
@@ -100,7 +100,7 @@ class TreasureTriad:
 
         def getCardRightOfTreasure(row, col):
             # check card to right is in the grid
-            if col+1 < self.gridCols-1:
+            if col+1 <= self.gridCols-1:
                 right = self.grid[row][col+1]
                 if right['treasure']:
                     return CARDS[right['treasure']]
