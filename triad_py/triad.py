@@ -17,7 +17,7 @@ from render import render_grid_3x3
 # • when treasure of same category is placed on the grid cell with the same category
 # it gains a +1 boost, -1 otherwise
 # • When a legion shares the same class as the slot, there is a +1 boost, 0 otherwise
-# • A gridCell containing "corruption" must be converted by the player otherwise their legion
+# • A gridCell containing "corruption" must be controlled by the player otherwise their legion
 # will enter a 1 day stasis lock
 
 # Riverman: +1 Alchemy
@@ -67,6 +67,8 @@ class TreasureTriad:
         self.gridRows = size
         self.gridCols = size
         self.converted_cards = 0
+        self.corrupted_cards = 0
+        # corrupted cards on grid not under player's control
 
         # 3x3 grid
         # grid is zero-indexed
@@ -138,12 +140,16 @@ class TreasureTriad:
             effect = s_effects[j]
             cell = self.grid[cellRef[0]][cellRef[1]]
             cell['affinity'] = effect
+            # count number of corrupted cards needed to flip
+            if effect == 'corruption':
+                self.corrupted_cards += 1
 
         for i, n_coords in enumerate(natures_cards_coords):
             cellRef = grid_cells[n_coords] # (0,2)
             card_name = natures_cards[i]
             cell = self.grid[cellRef[0]][cellRef[1]]
             cell['tcard'] = card_name
+
 
 
 
@@ -157,6 +163,17 @@ class TreasureTriad:
 
     def increment_converted_cards(self, num_flips=0):
         self.converted_cards += num_flips
+
+    def recalc_corrupted_cells(self):
+        corrupt_cell_count = 0
+        for row in self.grid:
+            for cell in row:
+                if cell['affinity'] == "corruption":
+                    if cell['player'] == "" or cell['player'] == "nature":
+                        corrupt_cell_count += 1
+
+        self.corrupted_cards = corrupt_cell_count
+
 
     def stake_treasure(
         self,
@@ -187,6 +204,7 @@ class TreasureTriad:
 
         render_grid_3x3(self.grid, legion_class)
         print("Converted Cards: ", self.converted_cards)
+        print("#Corrupted Cells: ", self.corrupted_cards)
 
 
 
@@ -297,6 +315,7 @@ class TreasureTriad:
                 else:
                     card_flips += 1
 
+        self.recalc_corrupted_cells()
         self.increment_converted_cards(card_flips)
 
 

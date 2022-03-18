@@ -114,6 +114,47 @@ print("\tdonkey card has leather working affinity")
 
 
 
+############### Scenario 3 ##############
+#### Testing Corruption incrementing/decrementing
+
+size = 3
+tt = TreasureTriad(size=size)
+# place "corruption" status effect on 3 cells
+tt.init_grid(
+    s_effects=["corruption", "corruption", "corruption"],
+    effects_coords=[0,1,3],
+    natures_cards=[],
+    natures_cards_coords=[],
+    disable_status_effects=False,
+    disable_natures_cards=True,
+)
+legion_class = 'assassin'
+## assassin affinity = leather working + brewing
+
+tt.stake_treasure(
+    {'tcard': 'bait for monsters', 'player': 'nature'},
+    coords=(0,0)
+)
+time.sleep(T)
+
+tt.stake_treasure(
+    {'tcard': 'bait for monsters', 'player': 'nature'},
+    coords=(1,0)
+)
+time.sleep(T)
+
+# convert 1 cell with corruption with 1 card
+tt.stake_treasure(
+    {'tcard': 'donkey', 'player': legion_class},
+    coords=(1,1)
+)
+# Convert 2 cells with corruption with 1 card
+tt.stake_treasure(
+    {'tcard': 'donkey', 'player': legion_class},
+    coords=(0,1)
+)
+
+
 # if size == 4:
 #     tt.stake_treasure({'tcard': 'castle', 'player': 'user'}, coords=(3,2))
 #     time.sleep(T)
