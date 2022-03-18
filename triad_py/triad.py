@@ -72,19 +72,19 @@ class TreasureTriad:
         # grid is zero-indexed
         grid = [
             [
-                { "tcard": "", "player": "", "affinity": "", "legion_class": "" },
-                { "tcard": "", "player": "", "affinity": "", "legion_class": ""  },
-                { "tcard": "", "player": "", "affinity": "", "legion_class": ""  }
+                { "tcard": "", "player": "", "affinity": ""},
+                { "tcard": "", "player": "", "affinity": ""},
+                { "tcard": "", "player": "", "affinity": ""}
             ],
             [
-                { "tcard": "", "player": "", "affinity": "", "legion_class": ""  },
-                { "tcard": "", "player": "", "affinity": "", "legion_class": ""  },
-                { "tcard": "", "player": "", "affinity": "", "legion_class": ""  }
+                { "tcard": "", "player": "", "affinity": ""},
+                { "tcard": "", "player": "", "affinity": ""},
+                { "tcard": "", "player": "", "affinity": ""}
             ],
             [
-                { "tcard": "", "player": "", "affinity": "", "legion_class": ""  },
-                { "tcard": "", "player": "", "affinity": "", "legion_class": ""  },
-                { "tcard": "", "player": "", "affinity": "", "legion_class": ""  }
+                { "tcard": "", "player": "", "affinity": ""},
+                { "tcard": "", "player": "", "affinity": ""},
+                { "tcard": "", "player": "", "affinity": ""}
             ],
         ]
         self.grid = grid;
@@ -160,37 +160,37 @@ class TreasureTriad:
 
     def stake_treasure(
         self,
-        tcard={ "tcard": "", "player": "", "legion_class": "" },
+        tcard={ "tcard": "", "player": ""},
         coords=(0,0)
     ):
         row = coords[0]
         col = coords[1]
         cell = self.grid[row][col]
-        legion_class = tcard.get('legion_class')
+        legion_class = tcard.get('player')
 
         if cell['tcard'] == "":
             # reassign tcard, player, and legion_class which placed the card for the cell
             # affinity is a property of the cell, never gets re-assigned
             cell['tcard'] = tcard['tcard']
             cell['player'] = tcard['player']
-            if legion_class:
-                cell['legion_class'] = legion_class
+
+            if legion_class and legion_class != "nature":
+                cell['player'] = legion_class
 
             self.try_flip_adjacent_cards(
                 coords=coords,
                 player=tcard['player'],
-                legion_class=legion_class
             )
         else:
             # throw error
             print('Slot occupied!')
 
-        render_grid_3x3(self.grid)
+        render_grid_3x3(self.grid, legion_class)
         print("Converted Cards: ", self.converted_cards)
 
 
 
-    def try_flip_adjacent_cards(self, coords=(0,0), player='user', legion_class=''):
+    def try_flip_adjacent_cards(self, coords=(0,0), player='common'):
 
         row = coords[0]
         col = coords[1]
@@ -200,6 +200,7 @@ class TreasureTriad:
 
         current_cell = self.grid[row][col]
         current_card = CARDS[current_cell['tcard']] if current_cell['tcard'] else None
+        legion_class = player
 
         if current_card is None:
             return
@@ -255,10 +256,10 @@ class TreasureTriad:
             if current_card['n'] + affinity_boost > card_above['s']:
                 # if score on staked card is bigger, flip the card to new player
                 self.grid[row-1][col]['player'] = player
-                if player == "user":
-                    card_flips += 1
-                else:
+                if player == "nature":
                     card_flips -= 1
+                else:
+                    card_flips += 1
 
 
         ## Try flip Card BELOW
@@ -267,10 +268,10 @@ class TreasureTriad:
             # compare south of current card to north of card below
             if current_card['s'] + affinity_boost > card_below['n']:
                 self.grid[row+1][col]['player'] = player
-                if player == "user":
-                    card_flips += 1
-                else:
+                if player == "nature":
                     card_flips -= 1
+                else:
+                    card_flips += 1
 
 
         ## Try flip Card on the LEFT
@@ -279,10 +280,10 @@ class TreasureTriad:
             # compare west-side of current card to east-side of card on the left
             if current_card['w'] + affinity_boost > card_on_the_left['e']:
                 self.grid[row][col-1]['player'] = player
-                if player == "user":
-                    card_flips += 1
-                else:
+                if player == "nature":
                     card_flips -= 1
+                else:
+                    card_flips += 1
 
 
         ## Try flip Card on the RIGHT
@@ -291,10 +292,10 @@ class TreasureTriad:
             # compare east-side of current card to west-side of card on the right
             if current_card['e'] + affinity_boost > card_on_the_right['w']:
                 self.grid[row][col+1]['player'] = player
-                if player == "user":
-                    card_flips += 1
-                else:
+                if player == "nature":
                     card_flips -= 1
+                else:
+                    card_flips += 1
 
         self.increment_converted_cards(card_flips)
 

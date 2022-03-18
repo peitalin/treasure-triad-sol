@@ -39,7 +39,6 @@ def render_cell(cell={
     'tcard': 'grin',
     'player': 'user',
     'affinity': '',
-    'legion_class': '',
 }):
 
     if cell is None or cell['tcard'] == "":
@@ -55,31 +54,31 @@ def render_cell(cell={
 
     t = cell['tcard']
     effect = cell['affinity']
-    legion_class = cell.get('legion_class')
+    legion_class = cell.get('player')
     affinity_boost = getAffinityBoost(
         cell['affinity'],
         CARDS[t]['affinity'],
-        cell.get('legion_class'),
+        legion_class,
     )
 
     return {
-        'tcard': fmt_treasure(t),
-        'affinity': yellow(fmt_treasure(effect)),
-        'n': blue(CARDS[t]['n'] + affinity_boost),
-        'e': blue(CARDS[t]['e'] + affinity_boost),
-        's': blue(CARDS[t]['s'] + affinity_boost),
-        'w': blue(CARDS[t]['w'] + affinity_boost),
-    } if cell['player'] == 'user' else {
         'tcard': fmt_treasure(t),
         'affinity': yellow(fmt_treasure(effect)),
         'n': red(CARDS[t]['n'] + affinity_boost),
         'e': red(CARDS[t]['e'] + affinity_boost),
         's': red(CARDS[t]['s'] + affinity_boost),
         'w': red(CARDS[t]['w'] + affinity_boost),
+    } if cell['player'] == 'nature' else {
+        'tcard': fmt_treasure(t),
+        'affinity': yellow(fmt_treasure(effect)),
+        'n': blue(CARDS[t]['n'] + affinity_boost),
+        'e': blue(CARDS[t]['e'] + affinity_boost),
+        's': blue(CARDS[t]['s'] + affinity_boost),
+        'w': blue(CARDS[t]['w'] + affinity_boost),
     }
 
 
-def render_grid_3x3(grid):
+def render_grid_3x3(grid, player='common'):
 
     c0_0 = render_cell(grid[0][0])
     c0_1 = render_cell(grid[0][1])
@@ -185,6 +184,10 @@ def render_grid_3x3(grid):
     # return a
     os.system('clear')
     print(a)
+    if player == 'nature':
+        print(red("Player: {}".format(player)))
+    else:
+        print(blue("Player: {}".format(player)))
     return a
 
 

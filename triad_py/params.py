@@ -57,7 +57,7 @@ def getAffinityBoost(current_cell_affinity, current_card_affinity, legion_class)
     if affinity_boost > 0:
         print("\ncurrent_cell_affinity", current_cell_affinity)
         print("current_card_affinity", current_card_affinity)
-        print("legion_class", legion_class)
+        print("player/legion_class", legion_class)
         print("affinity boost: ", affinity_boost)
         print("\n")
     return affinity_boost

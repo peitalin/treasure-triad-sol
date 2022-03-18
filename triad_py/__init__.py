@@ -21,19 +21,20 @@ tt.init_grid(
     disable_natures_cards=True,
 )
 tt.grid
+player = 'common'
 
 # flip left
 tt.stake_treasure({'tcard': 'dragon tail', 'player': 'nature' }, coords=(0,1))
 time.sleep(T)
 
-tt.stake_treasure({'tcard': 'honeycomb', 'player': 'user'}, coords=(0,0))
+tt.stake_treasure({'tcard': 'honeycomb', 'player': player }, coords=(0,0))
 time.sleep(T)
 
 tt.stake_treasure({'tcard': 'grin', 'player': 'nature'}, coords=(1,0))
 time.sleep(T)
 
 # flip right
-tt.stake_treasure({'tcard': 'ox', 'player': 'user' }, coords=(1,2))
+tt.stake_treasure({'tcard': 'ox', 'player': player }, coords=(1,2))
 time.sleep(T)
 
 # flip below
@@ -41,13 +42,13 @@ tt.stake_treasure({'tcard': 'bottomless elixer', 'player': 'nature'}, coords=(0,
 time.sleep(T)
 
 # flip above
-tt.stake_treasure({'tcard': 'donkey', 'player': 'user' }, coords=(1,1))
+tt.stake_treasure({'tcard': 'donkey', 'player': player }, coords=(1,1))
 time.sleep(T)
 
 tt.stake_treasure({'tcard': 'small bird', 'player': 'nature'}, coords=(2,2))
 time.sleep(T)
 
-tt.stake_treasure({'tcard': 'immovable stone', 'player': 'user' }, coords=(2,1))
+tt.stake_treasure({'tcard': 'immovable stone', 'player': player }, coords=(2,1))
 time.sleep(T)
 
 tt.stake_treasure({'tcard': 'red feather', 'player': 'nature'}, coords=(2,0))
@@ -75,35 +76,35 @@ legion_class = 'assassin'
 
 # South: 6
 tt.stake_treasure(
-    {'tcard': 'bait for monsters', 'player': 'nature', 'legion_class': ''},
+    {'tcard': 'bait for monsters', 'player': 'nature'},
     coords=(0,1)
 )
 time.sleep(T)
 
 # East: 6
 tt.stake_treasure(
-    {'tcard': 'mollusk shell', 'player': 'nature', 'legion_class': ''},
+    {'tcard': 'mollusk shell', 'player': 'nature'},
     coords=(1,0)
 )
 time.sleep(T)
 
 # West: 6
 tt.stake_treasure(
-    {'tcard': 'common bead', 'player': 'nature', 'legion_class': ''},
+    {'tcard': 'common bead', 'player': 'nature'},
     coords=(1,2)
 )
 time.sleep(T)
 
 # North: 6
 tt.stake_treasure(
-    {'tcard': 'jar of fairies', 'player': 'nature', 'legion_class': ''},
+    {'tcard': 'jar of fairies', 'player': 'nature'},
     coords=(2,1)
 )
 time.sleep(T)
 
 # Donkey has 5 stats all around, boosted to 7 all around
 tt.stake_treasure(
-    {'tcard': 'donkey', 'player': 'user', 'legion_class': legion_class},
+    {'tcard': 'donkey', 'player': legion_class},
     coords=(1,1)
 )
 print("\nDonkey has +5 stats all around, boosted to +7 and converted 4 surrounding cards because:")
