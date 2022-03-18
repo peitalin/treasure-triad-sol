@@ -1,78 +1,205 @@
 
 import numpy as np
-from params import CARDS
-from render import render_grid_3x3, render_grid_4x4
+from params import CARDS, getAffinityBoost
+from render import render_grid_3x3
+
+
+# Player: "nature" | "user" | "none"
+# StatusEffect:
+#     "corruption"
+#     | "alchemy"
+#     | "arcana"
+#     | "brewing"
+#     | "enchanting"
+#     | "leather"
+#     | "smithing"
+
+# • when treasure of same category is placed on the grid cell with the same category
+# it gains a +1 boost, -1 otherwise
+# • When a legion shares the same class as the slot, there is a +1 boost, 0 otherwise
+# • A gridCell containing "corruption" must be converted by the player otherwise their legion
+# will enter a 1 day stasis lock
+
+# Riverman: +1 Alchemy
+# Numerariare: +1 Arcana
+# Spellcaster: +1 Arcana, +1 Enchanting
+# Assassin: +1 Brewing, +1 Leather
+# Warrior: +1 Enchanting, +1 Smithing
+# Ranger: +1 Leather, +1 Brewing
+# Seige: +1 Smithing, +1 Alchemy
+# All-class: +1 All Categories
+# Common: None
+
+affinitys = [
+    "corruption",
+    "alchemy",
+    "arcana",
+    "brewing",
+    "enchanting",
+    "leather",
+    "smithing",
+]
+affinity_prob = [
+    0.25,
+    0.125,
+    0.125,
+    0.125,
+    0.125,
+    0.125,
+    0.125,
+]
+
+grid_cells = [
+    (0,0), (0,1), (0,2),
+    (1,0), (1,1), (1,2),
+    (2,0), (2,1), (2,2),
+]
+
 
 
 
 class TreasureTriad:
 
     def __init__(self, size=3):
+
         assert size == 3 or size == 4
+
         self.gridRows = size
         self.gridCols = size
-        if size == 3:
-            self.grid = [
-                [{ "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}],
-                [{ "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}],
-                [{ "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}],
-            ]
-        elif size ==4:
-            self.grid = [
-                [{ "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}],
-                [{ "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}],
-                [{ "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}],
-                [{ "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}, { "treasure": None, "player": None}],
-            ]
-        # 3x3 or 4x4 grid
-        # grid is zero-indexed
         self.converted_cards = 0
 
+        # 3x3 grid
+        # grid is zero-indexed
+        grid = [
+            [
+                { "tcard": "", "player": "", "affinity": "", "legion_class": "" },
+                { "tcard": "", "player": "", "affinity": "", "legion_class": ""  },
+                { "tcard": "", "player": "", "affinity": "", "legion_class": ""  }
+            ],
+            [
+                { "tcard": "", "player": "", "affinity": "", "legion_class": ""  },
+                { "tcard": "", "player": "", "affinity": "", "legion_class": ""  },
+                { "tcard": "", "player": "", "affinity": "", "legion_class": ""  }
+            ],
+            [
+                { "tcard": "", "player": "", "affinity": "", "legion_class": ""  },
+                { "tcard": "", "player": "", "affinity": "", "legion_class": ""  },
+                { "tcard": "", "player": "", "affinity": "", "legion_class": ""  }
+            ],
+        ]
+        self.grid = grid;
+
+
+    def init_grid(
+        self,
+        s_effects,
+        effects_coords,
+        natures_cards,
+        natures_cards_coords,
+        disable_status_effects=True,
+        disable_natures_cards=True,
+    ):
+        # randomly select status effects and their positions
+        # if not provided manually
+        if not disable_status_effects:
+            if not s_effects:
+                s_effects = np.random.choice(
+                    a=affinitys,    # choices
+                    size=2,              # draw 2
+                    p=affinity_prob # probabilities
+                )
+            if not effects_coords:
+                effects_coords = np.random.choice(
+                    a=[0,1,2,3,4,5,6,7,8],
+                    size=2,
+                    replace=False # No doubling up
+                )
+
+
+        # randomly select nature's cards and their positions
+        # if not provided manually
+        if not disable_natures_cards:
+            if not natures_cards:
+                natures_cards = np.random.choice(
+                    a=list(CARDS.keys()),
+                    size=3,
+                )
+            if not natures_cards_coords:
+                natures_cards_coords = np.random.choice(
+                    a=[0,1,2,3,4,5,6,7,8],
+                    size=3,
+                    replace=False # No doubling up
+                )
+
+
+        # apply effects and cards to grid
+        for j, e_coords in enumerate(effects_coords):
+            cellRef = grid_cells[e_coords] # (0,2)
+            effect = s_effects[j]
+            cell = self.grid[cellRef[0]][cellRef[1]]
+            cell['affinity'] = effect
+
+        for i, n_coords in enumerate(natures_cards_coords):
+            cellRef = grid_cells[n_coords] # (0,2)
+            card_name = natures_cards[i]
+            cell = self.grid[cellRef[0]][cellRef[1]]
+            cell['tcard'] = card_name
+
+
+
     def __repr__(self):
-        if self.rows == 3:
-            render_grid_3x3(self.grid)
-        elif self.rows == 4:
-            render_grid_4x4(self.grid)
-        # print("Converted Cards: ", self.converted_cards)
-        return ''
-
-    def count_converted_cards(self):
-        converted_cards = 0
-        for row in self.grid:
-            for cell in row:
-                if cell['player'] == 'user':
-                    converted_cards += 1
-        self.converted_cards = converted_cards
-
-
-    def stake_treasure(self, treasure={ "treasure": None, "player": None}, coords=(0,0)):
-        row = coords[0]
-        col = coords[1]
-
-        if self.grid[row][col]['treasure'] is None:
-            self.grid[row][col] = treasure
-            self.try_flip_adjacent_cards(coords=coords, player=treasure['player'])
-        else:
-            # throw error
-            print('Slot occupied!')
-
         if self.gridRows == 3:
             render_grid_3x3(self.grid)
         elif self.gridRows == 4:
             render_grid_4x4(self.grid)
+        # print("Converted Cards: ", self.converted_cards)
+        return ''
+
+    def increment_converted_cards(self, num_flips=0):
+        self.converted_cards += num_flips
+
+    def stake_treasure(
+        self,
+        tcard={ "tcard": "", "player": "", "legion_class": "" },
+        coords=(0,0)
+    ):
+        row = coords[0]
+        col = coords[1]
+        cell = self.grid[row][col]
+        legion_class = tcard.get('legion_class')
+
+        if cell['tcard'] == "":
+            # reassign tcard, player, and legion_class which placed the card for the cell
+            # affinity is a property of the cell, never gets re-assigned
+            cell['tcard'] = tcard['tcard']
+            cell['player'] = tcard['player']
+            if legion_class:
+                cell['legion_class'] = legion_class
+
+            self.try_flip_adjacent_cards(
+                coords=coords,
+                player=tcard['player'],
+                legion_class=legion_class
+            )
+        else:
+            # throw error
+            print('Slot occupied!')
+
+        render_grid_3x3(self.grid)
+        print("Converted Cards: ", self.converted_cards)
 
 
 
-    def try_flip_adjacent_cards(self, coords=(0,0), player='user'):
+    def try_flip_adjacent_cards(self, coords=(0,0), player='user', legion_class=''):
+
         row = coords[0]
         col = coords[1]
 
         assert 0 <= row < self.gridRows
         assert 0 <= col < self.gridCols
 
-        _current_card = self.grid[row][col]
-        current_card = CARDS[_current_card['treasure']] if _current_card['treasure'] else None
-        print('current', current_card)
+        current_cell = self.grid[row][col]
+        current_card = CARDS[current_cell['tcard']] if current_cell['tcard'] else None
 
         if current_card is None:
             return
@@ -81,60 +208,94 @@ class TreasureTriad:
             # check card above is in the grid
             if row-1 >= 0:
                 above = self.grid[row-1][col]
-                if above['treasure']:
-                    return CARDS[above['treasure']]
+                if above['tcard']:
+                    return CARDS[above['tcard']]
 
         def getCardBelowTreasure(row, col):
             # check card below is in the grid
             if row+1 <= self.gridRows-1:
                 below = self.grid[row+1][col]
-                if below['treasure']:
-                    return CARDS[below['treasure']]
+                if below['tcard']:
+                    return CARDS[below['tcard']]
 
         def getCardLeftOfTreasure(row, col):
             # check card to left is in the grid
             if col-1 >= 0:
                 left = self.grid[row][col-1]
-                if left['treasure']:
-                    return CARDS[left['treasure']]
+                if left['tcard']:
+                    return CARDS[left['tcard']]
 
         def getCardRightOfTreasure(row, col):
             # check card to right is in the grid
             if col+1 <= self.gridCols-1:
                 right = self.grid[row][col+1]
-                if right['treasure']:
-                    return CARDS[right['treasure']]
+                if right['tcard']:
+                    return CARDS[right['tcard']]
+
+
+
+        # • when treasure of same category is placed on the grid cell with the same category
+        # it gains a +1 boost, -1 otherwise
+        # • When a legion shares the same class as the slot, there is a +1 boost, 0 otherwise
+        # • A gridCell containing "corruption" must be converted by the player otherwise their legion
+        # will enter a 1 day stasis lock
+
+        card_flips = 0
+        affinity_boost = getAffinityBoost(
+            current_cell['affinity'],
+            current_card['affinity'],
+            legion_class
+        )
 
 
         ## Try flip Card ABOVE
         card_above = getCardAboveTreasure(row, col)
         if card_above:
             # compare north of current card to south of card above
-            if current_card['n'] > card_above['s']:
+            if current_card['n'] + affinity_boost > card_above['s']:
                 # if score on staked card is bigger, flip the card to new player
                 self.grid[row-1][col]['player'] = player
+                if player == "user":
+                    card_flips += 1
+                else:
+                    card_flips -= 1
+
 
         ## Try flip Card BELOW
         card_below = getCardBelowTreasure(row, col)
         if card_below:
             # compare south of current card to north of card below
-            if current_card['s'] > card_below['n']:
+            if current_card['s'] + affinity_boost > card_below['n']:
                 self.grid[row+1][col]['player'] = player
+                if player == "user":
+                    card_flips += 1
+                else:
+                    card_flips -= 1
+
 
         ## Try flip Card on the LEFT
         card_on_the_left = getCardLeftOfTreasure(row, col)
         if card_on_the_left:
             # compare west-side of current card to east-side of card on the left
-            if current_card['w'] > card_on_the_left['e']:
+            if current_card['w'] + affinity_boost > card_on_the_left['e']:
                 self.grid[row][col-1]['player'] = player
+                if player == "user":
+                    card_flips += 1
+                else:
+                    card_flips -= 1
+
 
         ## Try flip Card on the RIGHT
         card_on_the_right = getCardRightOfTreasure(row, col)
         if card_on_the_right:
             # compare east-side of current card to west-side of card on the right
-            if current_card['e'] > card_on_the_right['w']:
+            if current_card['e'] + affinity_boost > card_on_the_right['w']:
                 self.grid[row][col+1]['player'] = player
+                if player == "user":
+                    card_flips += 1
+                else:
+                    card_flips -= 1
 
-
+        self.increment_converted_cards(card_flips)
 
 
