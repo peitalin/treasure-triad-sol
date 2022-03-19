@@ -107,6 +107,7 @@ tt.stake_treasure(
     {'tcard': 'donkey', 'player': legion_class},
     coords=(1,1)
 )
+time.sleep(T)
 print("\nDonkey has +5 stats all around, boosted to +7 and converted 4 surrounding cards because:")
 print("\tlegion placing the card has leather working affinity: ", legion_class)
 print("\tdonkey card has leather working affinity")
@@ -148,11 +149,13 @@ tt.stake_treasure(
     {'tcard': 'donkey', 'player': legion_class},
     coords=(1,1)
 )
+time.sleep(T)
 # Convert 2 cells with corruption with 1 card
 tt.stake_treasure(
     {'tcard': 'donkey', 'player': legion_class},
     coords=(0,1)
 )
+time.sleep(T)
 
 
 # if size == 4:
