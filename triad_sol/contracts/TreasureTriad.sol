@@ -12,12 +12,23 @@ import { TreasureTriadCardStats, CardStats } from "./TreasureTriadCardStats.sol"
 
 
 struct TreasureCard {
-    string treasure;
+    string tcard;
     // string tokenId;
     Player player;
 }
 
-enum Player { nature, user, none }
+enum Player {
+    nature,
+    none,
+    range,
+    fighter,
+    spellcaster,
+    seige,
+    assassin,
+    riverman,
+    numeraire,
+    common
+}
 // nature => contract
 // user => msg.sender
 
@@ -29,10 +40,12 @@ contract TreasureTriad is Initializable {
     ShittyRandom public shittyRandom = new ShittyRandom();
 
     mapping(uint => mapping(uint => TreasureCard)) public grid;
+    event NaturesInitialCells(uint8[2][]);
 
     address owner;
     uint public gridRows;
     uint public gridCols;
+    int public convertedCards;
     TreasureCard noneCard;
 
 
@@ -43,7 +56,7 @@ contract TreasureTriad is Initializable {
         owner = msg.sender;
         gridRows = _gridSize;
         gridCols = _gridSize;
-        noneCard = TreasureCard({ treasure: "", player: Player.none });
+        noneCard = TreasureCard({ tcard: "", player: Player.none });
 
         // initiate grid with empty cards
         for (uint i = 0; i < gridCols; i++) {
@@ -53,23 +66,19 @@ contract TreasureTriad is Initializable {
             }
         }
         // start by letting Nature place N cards randomly on the grid
-        // _naturePlacesInitialCards(3);
+        // naturePlacesInitialCards(3);
     }
 
     modifier withinGrid(uint _row, uint _col) {
-        string memory rowErrMsg = string(abi.encodePacked("row must be within 0...", gridRows-1));
-        string memory colErrMsg = string(abi.encodePacked("col must be within 0...", gridCols-1));
         // gridRows and gridCols are lengths, not indexes
         // e.g. 3x3 grid => gridRows and gridCols is 3
-        require(_row >= 0 && _row < gridRows, rowErrMsg);
-        require(_col >= 0 && _col < gridCols, colErrMsg);
+        require(_row >= 0 && _row < gridRows, "row must be within 0...gridRows");
+        require(_col >= 0 && _col < gridCols, "col must be within 0...gridCols");
         _;
     }
 
     modifier isEmptyCell(uint _row, uint _col) {
-        string memory existingCard = grid[_row][_col].treasure;
-        string memory errMsg = string(abi.encodePacked("Cell Occupied: ", existingCard));
-        require(_isEmptyCell(_row, _col), errMsg);
+        require(_isEmptyCell(_row, _col), "Cell Occupied");
         _;
     }
 
@@ -79,7 +88,7 @@ contract TreasureTriad is Initializable {
     }
 
     function cardExists(TreasureCard memory _c) private pure returns (bool) {
-        return bytes(_c.treasure).length != 0;
+        return bytes(_c.tcard).length != 0;
     }
 
     function cardStatsExists(CardStats memory _c) private pure returns (bool) {
@@ -96,49 +105,60 @@ contract TreasureTriad is Initializable {
         return grid[_row][_col];
     }
 
+    function _incrementConvertedCards(int _num_flips) private returns (int) {
+        convertedCards += _num_flips;
+        return convertedCards;
+    }
+
+    function getConvertedCards() public view returns (int) {
+        return convertedCards;
+    }
+
     ////////////////////////////////////
     // Initializing Nature's Card Picks
     ///////////////////////////////////
 
-    function _shittyNaturePlacesCard(uint _row, uint _col, uint n) private returns (bool) {
+    function _naturePlacesCard(uint _row, uint _col) private returns (bool) {
         if (!_isEmptyCell(_row, _col)) {
             return false;
         } else {
-            // NOTE: Need a randomizer that randomly selects from a range of cards
-            // Ideally with difficulty parameters so that when difficulty is low
+
+            // Ideally randomizer has difficulty parameters so that when difficulty is low
             // more low-tier cards are selected, and vice versa when difficulty is high
-            uint randInt = shittyRandom.requestRandomNumber(n + 11) % 3;
-            string[3] memory randCards = ["grin", "honeycomb", "castle"];
+            string[] memory randCards = ttCardStats.getCardNames();
+            uint randInt = shittyRandom.requestRandomNumber(_row + _col) % randCards.length;
             string memory randCard = randCards[randInt];
+
             grid[_row][_col] = TreasureCard({
-                treasure: randCard,
+                tcard: randCard,
                 player: Player.nature
             });
             return true;
         }
     }
 
-    function _naturePlacesInitialCards(uint _number) private {
+    function naturePlacesInitialCards(uint _number) public {
 
+        require(msg.sender == owner, "owner only");
         uint totalCardsPlaced = 0;
-        uint max_tries = 40;
-        // We want Nature to place 3x cards, but there is chance
-        // Nature re-picks cells with pre-existing cards.
-        // Dirty workaround with max tries.
-        for (uint i = 1; i < max_tries; i++) {
-            // Nature picks a random cell to place a card
-            // ADD PROPER RANDOMIZER: randomly sample cell coordinates without replacement
-            uint randRow1 = shittyRandom.requestRandomNumber(totalCardsPlaced + 11) % gridRows;
-            uint randCol1 = shittyRandom.requestRandomNumber(totalCardsPlaced + 10) % gridCols;
+        uint8[2][] memory sampledGridCells = shittyRandom.sampleRandomGridCellCoords(_number);
 
-            if (_shittyNaturePlacesCard(randRow1, randCol1, totalCardsPlaced)) {
+        uint i; // counter
+
+        while (totalCardsPlaced < _number) {
+
+            uint randRow = sampledGridCells[i][0];
+            uint randCol = sampledGridCells[i][1];
+
+            if (_naturePlacesCard(randRow, randCol)) {
                 totalCardsPlaced++;
+                i++;
             }
-            // console.log("totalCardsPlaced: ", totalCardsPlaced);
             if (totalCardsPlaced == _number) {
                 break;
             }
         }
+        emit NaturesInitialCells(sampledGridCells);
     }
 
     //////////////////////////////
@@ -148,14 +168,15 @@ contract TreasureTriad is Initializable {
     function stakeTreasureCard(
         uint _row,
         uint _col,
-        string calldata _name
+        string calldata _name,
+        Player _player
     ) isEmptyCell(_row, _col) withinGrid(_row, _col) public {
-        TreasureCard memory c = TreasureCard(_name, Player.user);
+        TreasureCard memory c = TreasureCard(_name, _player);
         grid[_row][_col] = c;
-        tryFlipCardOnTop(_row, _col, Player.user, c);
-        tryFlipCardOnBottom(_row, _col, Player.user, c);
-        tryFlipCardOnLeft(_row, _col, Player.user, c);
-        tryFlipCardOnRight(_row, _col, Player.user, c);
+        _tryFlipCardOnTop(_row, _col, _player, c);
+        _tryFlipCardOnBottom(_row, _col, _player, c);
+        _tryFlipCardOnLeft(_row, _col, _player, c);
+        _tryFlipCardOnRight(_row, _col, _player, c);
     }
 
     // test purposes only, remove
@@ -167,13 +188,13 @@ contract TreasureTriad is Initializable {
         require(address(msg.sender) == owner, "owner only");
         TreasureCard memory c = TreasureCard(_name, Player.nature);
         grid[_row][_col] = c;
-        tryFlipCardOnTop(_row, _col, Player.nature, c);
-        tryFlipCardOnBottom(_row, _col, Player.nature, c);
-        tryFlipCardOnLeft(_row, _col, Player.nature, c);
-        tryFlipCardOnRight(_row, _col, Player.nature, c);
+        _tryFlipCardOnTop(_row, _col, Player.nature, c);
+        _tryFlipCardOnBottom(_row, _col, Player.nature, c);
+        _tryFlipCardOnLeft(_row, _col, Player.nature, c);
+        _tryFlipCardOnRight(_row, _col, Player.nature, c);
     }
 
-    function tryFlipCardOnTop(
+    function _tryFlipCardOnTop(
         uint _row,
         uint _col,
         Player _player,
@@ -193,12 +214,15 @@ contract TreasureTriad is Initializable {
                 if (current_card_stats.n > card_top_stats.s) {
                     // if score on staked card is bigger, flip the card to new player
                     grid[_row-1][_col].player = _player;
+
+                    int card_flips = (_player == Player.nature) ? int(-1) : int(1);
+                    _incrementConvertedCards(card_flips);
                 }
             }
         }
     }
 
-    function tryFlipCardOnBottom(
+    function _tryFlipCardOnBottom(
         uint _row,
         uint _col,
         Player _player,
@@ -216,12 +240,15 @@ contract TreasureTriad is Initializable {
                 // compare south of current card to north of card below
                 if (current_card_stats.s > card_top_stats.n) {
                     grid[_row+1][_col].player = _player;
+
+                    int card_flips = (_player == Player.nature) ? int(-1) : int(1);
+                    _incrementConvertedCards(card_flips);
                 }
             }
         }
     }
 
-    function tryFlipCardOnRight(
+    function _tryFlipCardOnRight(
         uint _row,
         uint _col,
         Player _player,
@@ -240,12 +267,15 @@ contract TreasureTriad is Initializable {
                 if (current_card_stats.e > card_right_stats.w) {
                     // if score on staked card is bigger, flip the card to new player
                     grid[_row][_col+1].player = _player;
+
+                    int card_flips = (_player == Player.nature) ? int(-1) : int(1);
+                    _incrementConvertedCards(card_flips);
                 }
             }
         }
     }
 
-    function tryFlipCardOnLeft(
+    function _tryFlipCardOnLeft(
         uint _row,
         uint _col,
         Player _player,
@@ -264,6 +294,9 @@ contract TreasureTriad is Initializable {
                 // compare west-side of current card to east-side of card on the left
                 if (current_card_stats.w > card_left_stats.e) {
                     grid[_row][_col-1].player = _player;
+
+                    int card_flips = (_player == Player.nature) ? int(-1) : int(1);
+                    _incrementConvertedCards(card_flips);
                 }
             }
         }
