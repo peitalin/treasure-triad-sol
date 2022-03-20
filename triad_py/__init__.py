@@ -4,11 +4,9 @@ import time
 T = 0.75
 
 
-
-## Legions choose 1~5 treasures to use in the puzzle
-## higher constellation lvls => can take more treasures wit your (your deck)
-## allow whitelisted foreign items as treasures (but with lower stats)
-
+############### PYTHON TEST 2 ##############
+#### Testing +2 affinity boost flips cards on N, E, S, W directions
+## Solidity Test Replicated in TreasureTriad.ts
 size = 3
 tt = TreasureTriad(size=size)
 # no status effects, no cards placed for nature/computer
@@ -57,8 +55,9 @@ time.sleep(T)
 
 
 
-############### Scenario 2 ##############
+############### PYTHON TEST 2 ##############
 #### Testing +2 affinity boost flips cards on N, E, S, W directions
+## Solidity Test Replicated in TreasureTriad.ts
 
 size = 3
 tt = TreasureTriad(size=size)
@@ -115,8 +114,9 @@ print("\tdonkey card has leather working affinity")
 
 
 
-############### Scenario 3 ##############
+############### PYTHON TEST 3 ##############
 #### Testing Corruption incrementing/decrementing
+## Solidity Test Replicated in TreasureTriad.ts
 
 size = 3
 tt = TreasureTriad(size=size)

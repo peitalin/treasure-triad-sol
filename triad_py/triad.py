@@ -74,19 +74,19 @@ class TreasureTriad:
         # grid is zero-indexed
         grid = [
             [
-                { "tcard": "", "player": "", "affinity": ""},
-                { "tcard": "", "player": "", "affinity": ""},
-                { "tcard": "", "player": "", "affinity": ""}
+                { "tcard": "", "player": "", 'affinity': ""},
+                { "tcard": "", "player": "", 'affinity': ""},
+                { "tcard": "", "player": "", 'affinity': ""}
             ],
             [
-                { "tcard": "", "player": "", "affinity": ""},
-                { "tcard": "", "player": "", "affinity": ""},
-                { "tcard": "", "player": "", "affinity": ""}
+                { "tcard": "", "player": "", 'affinity': ""},
+                { "tcard": "", "player": "", 'affinity': ""},
+                { "tcard": "", "player": "", 'affinity': ""}
             ],
             [
-                { "tcard": "", "player": "", "affinity": ""},
-                { "tcard": "", "player": "", "affinity": ""},
-                { "tcard": "", "player": "", "affinity": ""}
+                { "tcard": "", "player": "", 'affinity': ""},
+                { "tcard": "", "player": "", 'affinity': ""},
+                { "tcard": "", "player": "", 'affinity': ""}
             ],
         ]
         self.grid = grid;
