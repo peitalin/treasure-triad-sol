@@ -491,6 +491,8 @@ describe("TreasureTriad", function () {
         }
 
         expect(corruptionCount).to.equal(0);
+        // if corruption > 0, put legion in stasis for 1 day
+        // for every point of corruption
     })
 
 
