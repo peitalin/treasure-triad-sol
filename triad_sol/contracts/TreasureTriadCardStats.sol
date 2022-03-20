@@ -29,8 +29,8 @@ enum Affinity {
 
 contract TreasureTriadCardStats {
 
-	mapping(string => CardStats) cards;
-	mapping(uint => CardStats) cardsByTokenId;
+    mapping(string => CardStats) cards;
+    mapping(uint => CardStats) cardsByTokenId;
 
     mapping(Player => Affinity[]) legionAffinities;
 
