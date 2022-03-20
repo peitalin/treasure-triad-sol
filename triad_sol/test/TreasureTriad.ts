@@ -7,8 +7,8 @@ import { TreasureTriadCardStats } from "../typechain-types/TreasureTriadCardStat
 import { ShittyRandom } from "../typechain-types/ShittyRandom";
 import { LegionDecks } from "../typechain-types/LegionDecks";
 
-const DISABLE_LOGS = true;
-// const DISABLE_LOGS = false;
+// const DISABLE_LOGS = true;
+const DISABLE_LOGS = false;
 
 
 
@@ -105,10 +105,6 @@ describe("TreasureTriad", function () {
 
     it("Nature draws 3 cards without replacement", async function () {
 
-        await printGrid(tTriad)
-
-        const decoder = new ethers.utils.AbiCoder();
-
         let naturesTx = await tTriad.naturePlacesInitialCards(3);
         let receipt2 = await naturesTx?.wait();
         let logs2 = receipt2?.events?.filter(x => x.event === "NaturesInitialCells") ?? []
@@ -131,10 +127,6 @@ describe("TreasureTriad", function () {
 
     it("Nature draws and places 2 random affinity effects", async function () {
 
-        await printGrid(tTriad)
-
-        const decoder = new ethers.utils.AbiCoder();
-
         // 1. Nature (contract) randomly chooses 2 cells to place 2 random affinities
         // affinities (alchemy, corruption, etc) give a +1 boost if the right treasures
         // are placed on it, by the right legions
@@ -154,8 +146,6 @@ describe("TreasureTriad", function () {
             return n1
         }))).filter((cell: GridCellStructOutput) => !!cell.cell_affinity)
 
-        await printGrid(tTriad)
-
         expect(naturesAffinities.length).to.equal(n)
     })
 
@@ -171,11 +161,11 @@ describe("TreasureTriad", function () {
         // and Nature would flip to Assassin
 
         // +2 affinityBoost for Leather Working
-        await tryStakeAndPrint(0, 2, "donkey", Player.assassin);
+        await tryStakeAndPrint(0, 2, "donkey", Player.assassin, true);
         // +1 affinityBoost for Leather Working
-        await tryStakeAndPrint(0, 1, "donkey", Player.nature);
+        await tryStakeAndPrint(0, 1, "donkey", Player.nature, true);
         // +0 affinityBoost for Leather Working
-        await tryStakeAndPrint(0, 0, "donkey", Player.nature);
+        await tryStakeAndPrint(0, 0, "donkey", Player.nature, true);
 
         const donkeyTx1 = await tTriad.getCardStatsAtCell(0, 0);
         const donkeyTx2 = await tTriad.getCardStatsAtCell(0, 1);
@@ -238,11 +228,11 @@ describe("TreasureTriad", function () {
             tokenId: d3[5],
             cardName: d3[6]
         }
-        if (!DISABLE_LOGS) {
-            console.log("CardStats 1", donkey1)
-            console.log("CardStats 2", donkey2)
-            console.log("CardStats 3", donkey3)
-        }
+        // if (!DISABLE_LOGS) {
+        //     console.log("CardStats 1", donkey1)
+        //     console.log("CardStats 2", donkey2)
+        //     console.log("CardStats 3", donkey3)
+        // }
 
         // +2 boost to stats
         expect(donkey3.n).to.equal(7);
@@ -251,7 +241,6 @@ describe("TreasureTriad", function () {
         // +0 boost to stats
         expect(donkey1.n).to.equal(5);
 
-        await printGrid(tTriad)
     })
 
 
@@ -443,9 +432,6 @@ describe("TreasureTriad", function () {
             tokenId: d0[5],
             cardName: d0[6]
         }
-        if (!DISABLE_LOGS) {
-            console.log("CardStats 0", donkey0)
-        }
         // +2 boost to Donkey's normal 5 stats
         expect(donkey0.n).to.equal(7);
 
@@ -463,31 +449,34 @@ describe("TreasureTriad", function () {
     })
 
 
-    it("Counts 0 corrupted cells after converting 3 corrupted cells", async function () {
+    it("Python Test 3: Counts 0 corrupted cells after converting 3 corrupted cells", async function () {
 
+        console.log("\nSetting 3 cells with corruption...")
         await tTriad.setCellWithAffinity(0, 0, Affinity.corruption)
         await tTriad.setCellWithAffinity(0, 1, Affinity.corruption)
         await tTriad.setCellWithAffinity(1, 0, Affinity.corruption)
 
+        console.log("Staking 2 cards on corrupted cells...")
         await tryStakeAndPrint(0, 0, "bait for monsters", Player.nature, true);
         await tryStakeAndPrint(1, 0, "bait for monsters", Player.nature, true);
 
         if (!DISABLE_LOGS) {
-            console.log("\nBefore")
+            console.log("Before")
         }
         await printGrid(tTriad)
 
+        console.log("Player stakes 2 donkeys adjacent to corrupted cells...")
         await tryStakeAndPrint(1, 1, "donkey", Player.seige, true);
         await tryStakeAndPrint(0, 1, "donkey", Player.range, true);
 
         if (!DISABLE_LOGS) {
-            console.log("\nAfter")
+            console.log("After")
         }
         await printGrid(tTriad)
 
         let corruptionCount = await tTriad.getCorruptedCellCount();
         if (!DISABLE_LOGS) {
-            console.log("\nCorruptionCellCount", corruptionCount);
+            console.log("CorruptionCellCount", corruptionCount);
         }
 
         expect(corruptionCount).to.equal(0);
@@ -504,7 +493,7 @@ describe("TreasureTriad", function () {
 
 function fmt(treasure: string, player: number, affinity: number) {
 
-    let _t =  treasure.trim() != "" ? treasure.trim() : "----------"
+    let _t =  treasure.trim() != "" ? treasure.trim() : "----------------"
     let _player = playerToText(player)
     let _affinity = affinityToText(affinity)
     let label = _t
