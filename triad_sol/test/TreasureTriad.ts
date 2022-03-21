@@ -2,6 +2,7 @@ import "@nomiclabs/hardhat-waffle"
 import { ethers } from "hardhat";
 import { expect } from "chai"
 import { Signer} from "ethers";
+import {getBlockTime, mineBlock, getCurrentTime, setNextBlockTime} from './utils';
 
 import { TreasureTriad, GridCellStructOutput } from "../typechain-types/TreasureTriad";
 import { TreasureTriadCardStats } from "../typechain-types/TreasureTriadCardStats";
@@ -20,10 +21,12 @@ describe("TreasureTriad", function () {
     let TreasureTriad
     let TreasureTriadCardStats
     let ShittyRandom
+    let LegionDecks
 
     let tTriad: TreasureTriad
     let ttCardStats: TreasureTriadCardStats
     let sRandom: ShittyRandom
+    let legionDecks: LegionDecks
     let decoder = new ethers.utils.AbiCoder();
 
     let gridSize = 3
@@ -60,6 +63,7 @@ describe("TreasureTriad", function () {
         TreasureTriad = await ethers.getContractFactory("TreasureTriad");
         TreasureTriadCardStats = await ethers.getContractFactory("TreasureTriadCardStats");
         ShittyRandom = await ethers.getContractFactory("ShittyRandom");
+        LegionDecks = await ethers.getContractFactory("LegionDecks");
 
         [owner, ...addrs] = await ethers.getSigners();
 
@@ -67,14 +71,10 @@ describe("TreasureTriad", function () {
         await tTriad.initialize(gridSize);
         ttCardStats = await TreasureTriadCardStats.deploy();
         sRandom = await ShittyRandom.deploy();
+        legionDecks = await LegionDecks.deploy();
 
     });
 
-    it('Cannot call initialize() more than once', async function () {
-        gridSize = 3
-        await expect(tTriad.initialize(gridSize))
-            .to.be.revertedWith("Initializable: contract is already initialized");
-    });
 
     it("Stakes and looks up cards (ox, cow, donkey) with correct stats", async function () {
 
@@ -281,9 +281,39 @@ describe("TreasureTriad", function () {
         expect(donkey2.n).to.equal(6);
         // +0 boost to stats
         expect(donkey1.n).to.equal(5);
-
     })
 
+    it("stakeMultipleCardsAndFinishGame places and converts 3 cards", async function () {
+
+        await tryStakeAndPrint(0, 0, "donkey", Player.nature, true);
+        await tryStakeAndPrint(0, 1, "donkey", Player.nature, true);
+        await tryStakeAndPrint(0, 2, "donkey", Player.nature, true);
+
+        await tTriad.setCellWithAffinity(0, 0, Affinity.corruption)
+        await tTriad.setCellWithAffinity(0, 1, Affinity.corruption)
+        await tTriad.setCellWithAffinity(0, 2, Affinity.corruption)
+
+        let tx = await tTriad.stakeMultipleCardsAndFinishGame(
+            [[1,0], [1,1], [1,2]],
+            ["grin", "grin", "grin"],
+            Player.fighter,
+        );
+        await printGrid(tTriad);
+
+        let receipt2 = await tx?.wait();
+        let logs2 = receipt2?.events?.filter(x => x.event === "GameEndingStats") ?? []
+
+        let gameEndingStats = decoder.decode(
+            ['int', 'int'],
+            ethers.utils.hexDataSlice(logs2?.[0]?.data, 0)
+        )
+        console.log("convertedCards: ", gameEndingStats[0])
+        console.log("corruptedCellCount: ", gameEndingStats[1])
+        // flipped 3 cards
+        expect(gameEndingStats[0]).to.equal(3);
+        // 3 corruption cells converted, 0 remaining
+        expect(gameEndingStats[1]).to.equal(0);
+    })
 
     it("Python Test 1: Stakes cards and flips cards", async function () {
 

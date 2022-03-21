@@ -7,6 +7,7 @@ import "hardhat/console.sol";
 
 import "./TreasureTriadCardStats.sol";
 import "./ShittyRandom.sol";
+import "./LegionDecks.sol";
 import { TreasureTriadCardStats, CardStats, Affinity } from "./TreasureTriadCardStats.sol";
 
 
@@ -43,6 +44,7 @@ contract TreasureTriad is Initializable {
 
     TreasureTriadCardStats public ttCardStats = new TreasureTriadCardStats();
     ShittyRandom public shittyRandom = new ShittyRandom();
+    // LegionDecks public legionDecks = new LegionDecks();
 
     mapping(uint => mapping(uint => GridCell)) public grid;
 
@@ -50,6 +52,7 @@ contract TreasureTriad is Initializable {
     event NaturesInitialAffinityCells(uint8[2][]);
 
     event CardStaked(uint, uint, string, Player);
+    event GameEndingStats(int, int);
     event CardStatsAtCell(uint, uint, uint, uint, Affinity, uint, string);
     // struct CardStats {
     //     uint n;
@@ -288,6 +291,59 @@ contract TreasureTriad is Initializable {
     // Treasure Triad Logic
     //////////////////////////////
 
+    function stakeMultipleCardsAndFinishGame(
+        uint[2][] memory _coords,
+        string[] calldata _card_names,
+        Player _player
+    ) public returns (int, int) {
+
+        require(_coords.length == _card_names.length, "coords.length must match card_names.length");
+        require(_card_names.length < 4, "max cards to place is 3");
+
+        for (uint i; i < _coords.length; i++) {
+
+            string calldata _card_name = _card_names[i];
+            uint _row = _coords[i][0];
+            uint _col = _coords[i][1];
+
+            stakeTreasureCard(_row, _col, _card_name, _player);
+        }
+
+        recalcCorruptedCells();
+        /////// Complete the Quest ///////
+        // finish quest segment 3
+
+        // calculate drop rate boost
+        // uint dropRateBoost = calculateDropRateBoost();
+        // drop_treasure_fragments() with dropRateBoost% boost
+        // release legion from contract
+
+        // remove legionDeck
+        // legionDecks.removeDeck(_legionId);
+
+        emit GameEndingStats(convertedCards, corruptedCellCount);
+        return (convertedCards, corruptedCellCount);
+    }
+
+    function calculateDropRateBoost() private view returns (uint) {
+        // genesis legion boost
+        // convertCards boost
+        if (convertedCards == 0) {
+            return 0;
+        }
+        if (convertedCards == 1) {
+            return 1;
+        }
+        if (convertedCards == 2) {
+            return 2;
+        }
+        if (convertedCards == 3) {
+            return 3;
+        } else {
+            return 0;
+        }
+    }
+
     function stakeTreasureCard(
         uint _row,
         uint _col,
@@ -350,12 +406,12 @@ contract TreasureTriad is Initializable {
         return corruptedCellCount;
     }
 
-    // test purposes only, remove
+    // for testing purposes, make private
     function setCellWithAffinity(
         uint _row,
         uint _col,
         Affinity _affinity
-    ) withinGrid(_row, _col) isEmptyCell(_row, _col) public {
+    ) withinGrid(_row, _col) public {
         require(address(msg.sender) == owner, "owner only");
         grid[_row][_col].cell_affinity = _affinity;
     }

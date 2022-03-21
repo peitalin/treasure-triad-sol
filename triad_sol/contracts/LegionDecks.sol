@@ -26,19 +26,8 @@ contract LegionDecks is Initializable {
     event AddedLegionDeck(uint, string[]);
     event RemovedLegionDeck(uint);
 
-
-    function initialize() public initializer {
+    constructor() {
         owner = msg.sender;
-
-        string[5] memory eg_deck = ["grin", "ox", "donkey", "honeycomb", "small bird"];
-        string[] memory eg_deck2 = new string[](8);
-
-        for (uint i; i < eg_deck.length; i++) {
-            eg_deck2[i] = eg_deck[i];
-        }
-
-        // example
-        addDeck(777, eg_deck2);
     }
 
     function getLegionDeck(uint _legionId) public view returns (string[] memory) {
