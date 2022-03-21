@@ -125,7 +125,7 @@ contract TreasureTriad is Initializable {
 
     function _isEmptyCell(uint _row, uint _col) private view returns (bool) {
         GridCell memory cell = grid[_row][_col];
-        return cardExists(cell) ? false : true;
+        return _cardExists(cell) ? false : true;
     }
 
     function _cellHasNoAffinity(uint _row, uint _col) private view returns (bool) {
@@ -134,11 +134,11 @@ contract TreasureTriad is Initializable {
     }
 
     // GridCell => TreasureCard => CardStats
-    function cardExists(GridCell memory _c) private pure returns (bool) {
+    function _cardExists(GridCell memory _c) private pure returns (bool) {
         return bytes(_c.card_name).length != 0;
     }
 
-    function cardStatsExists(CardStats memory _c) private pure returns (bool) {
+    function _cardStatsExists(CardStats memory _c) private pure returns (bool) {
         return bytes(_c.card_name).length != 0;
     }
 
@@ -427,7 +427,7 @@ contract TreasureTriad is Initializable {
             CardStats memory current_card_stats = getCardStatsAtCell(_row, _col);
             CardStats memory card_top_stats = getCardStatsAtCell(_row-1, _col);
 
-            if (cardStatsExists(card_top_stats)) {
+            if (_cardStatsExists(card_top_stats)) {
                 // compare north of current card to south of card above
                 if (current_card_stats.n > card_top_stats.s) {
                     // if score on staked card is bigger, flip the card to new player
@@ -451,7 +451,7 @@ contract TreasureTriad is Initializable {
             CardStats memory current_card_stats = getCardStatsAtCell(_row, _col);
             CardStats memory card_bottom_stats = getCardStatsAtCell(_row+1, _col);
 
-            if (cardStatsExists(card_bottom_stats)) {
+            if (_cardStatsExists(card_bottom_stats)) {
                 // compare south of current card to north of card below
                 if (current_card_stats.s > card_bottom_stats.n) {
                     grid[_row+1][_col].player = _player;
@@ -474,7 +474,7 @@ contract TreasureTriad is Initializable {
             CardStats memory current_card_stats = getCardStatsAtCell(_row, _col);
             CardStats memory card_right_stats = getCardStatsAtCell(_row, _col+1);
 
-            if (cardStatsExists(card_right_stats)) {
+            if (_cardStatsExists(card_right_stats)) {
                 // compare east-side of current card to west-side of card on the right
                 if (current_card_stats.e > card_right_stats.w) {
                     // if score on staked card is bigger, flip the card to new player
@@ -498,7 +498,7 @@ contract TreasureTriad is Initializable {
             CardStats memory current_card_stats = getCardStatsAtCell(_row, _col);
             CardStats memory card_left_stats = getCardStatsAtCell(_row, _col-1);
 
-            if (cardStatsExists(card_left_stats)) {
+            if (_cardStatsExists(card_left_stats)) {
                 // compare west-side of current card to east-side of card on the left
                 if (current_card_stats.w > card_left_stats.e) {
                     grid[_row][_col-1].player = _player;
