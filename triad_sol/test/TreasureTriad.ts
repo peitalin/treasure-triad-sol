@@ -122,22 +122,26 @@ describe("TreasureTriad", function () {
         expect(tTriad.stakeTreasureCard(-1, 0, "ox", player_legion))
             .to.be.revertedWith("row must be >= 0");
 
-        expect(
-            tTriad.stakeTreasureCard(3, 0, "grin", player_legion)
-        ).to.be.revertedWith("row must be < gridRows");
+        expect(tTriad.stakeTreasureCard(3, 0, "grin", player_legion))
+            .to.be.revertedWith("row must be < gridRows");
     })
 
     it("Staking cards in cells outside of column indexes 0-2 reverts", async function () {
         // https://github.com/NomicFoundation/hardhat/issues/2234
         // Issues with revertWith messages matching on things they shouldn't
         let player_legion = Player.assassin
-        expect(
-            tTriad.stakeTreasureCard(0, -1, "grin", player_legion)
-        ).to.be.revertedWith("col must be >= 0");
+        expect(tTriad.stakeTreasureCard(0, -1, "grin", player_legion))
+            .to.be.revertedWith("col must be >= 0");
 
-        expect(
-            tTriad.stakeTreasureCard(0, 3, "grin", player_legion)
-        ).to.be.revertedWith("col must be < gridCols");
+        expect(tTriad.stakeTreasureCard(0, 3, "grin", player_legion))
+            .to.be.revertedWith("col must be < gridCols");
+    })
+
+    it("Emits event on stakeTreasureCard", async () => {
+        let tx1 = tTriad.stakeTreasureCard(0, 0, "ox", Player.nature);
+        expect(tx1)
+            .to.emit(tx1, "CardStaked")
+            .withArgs(0, 0, "ox", Player.nature)
     })
 
     it("Nature draws 3 cards without replacement", async function () {

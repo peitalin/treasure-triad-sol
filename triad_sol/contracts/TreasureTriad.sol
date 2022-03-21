@@ -45,8 +45,11 @@ contract TreasureTriad is Initializable {
     ShittyRandom public shittyRandom = new ShittyRandom();
 
     mapping(uint => mapping(uint => GridCell)) public grid;
+
     event NaturesInitialCells(uint8[2][]);
     event NaturesInitialAffinityCells(uint8[2][]);
+
+    event CardStaked(uint, uint, string, Player);
     event CardStatsAtCell(uint, uint, uint, uint, Affinity, uint, string);
     // struct CardStats {
     //     uint n;
@@ -304,6 +307,7 @@ contract TreasureTriad is Initializable {
         _tryFlipCardOnLeft(_row, _col, _player);
         _tryFlipCardOnRight(_row, _col, _player);
         recalcCorruptedCells();
+        emit CardStaked(_row, _col, _card_name, _player);
     }
 
     // test purposes only, remove
@@ -321,6 +325,7 @@ contract TreasureTriad is Initializable {
         _tryFlipCardOnLeft(_row, _col, Player.nature);
         _tryFlipCardOnRight(_row, _col, Player.nature);
         recalcCorruptedCells();
+        emit CardStaked(_row, _col, _card_name, Player.nature);
     }
 
     function recalcCorruptedCells() public returns (int) {
