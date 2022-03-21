@@ -105,9 +105,9 @@ contract TreasureTriad is Initializable {
     modifier withinGrid(uint _row, uint _col) {
         // gridRows and gridCols are lengths, not indexes
         // e.g. 3x3 grid => gridRows and gridCols is 3
-        require(_row >= 0 && _row < gridRows, "row must be >= 0");
+        require(_row >= 0, "row must be >= 0");
         require(_row < gridRows, "row must be < gridRows");
-        require(_col >= 0, "col must be >= gridCols");
+        require(_col >= 0, "col must be >= 0");
         require(_col < gridCols, "col must be < gridCols");
         _;
     }

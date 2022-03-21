@@ -1,7 +1,8 @@
+import "@nomiclabs/hardhat-waffle"
 import { ethers } from "hardhat";
-import { Signer, ethers as ethersV5 } from "ethers";
-
 import { expect } from "chai"
+import { Signer} from "ethers";
+
 import { TreasureTriad, GridCellStructOutput } from "../typechain-types/TreasureTriad";
 import { TreasureTriadCardStats } from "../typechain-types/TreasureTriadCardStats";
 import { ShittyRandom } from "../typechain-types/ShittyRandom";
@@ -23,10 +24,10 @@ describe("TreasureTriad", function () {
     let tTriad: TreasureTriad
     let ttCardStats: TreasureTriadCardStats
     let sRandom: ShittyRandom
-    let decoder: ethersV5.utils.AbiCoder = new ethers.utils.AbiCoder();
+    let decoder = new ethers.utils.AbiCoder();
 
+    let gridSize = 3
     let owner
-    let addr1
     let addrs
 
     const tryStakeAndPrint = async (
@@ -60,9 +61,8 @@ describe("TreasureTriad", function () {
         TreasureTriadCardStats = await ethers.getContractFactory("TreasureTriadCardStats");
         ShittyRandom = await ethers.getContractFactory("ShittyRandom");
 
-        [owner, addr1, ...addrs] = await ethers.getSigners();
+        [owner, ...addrs] = await ethers.getSigners();
 
-        let gridSize = 3
         tTriad = await TreasureTriad.deploy();
         await tTriad.initialize(gridSize);
         ttCardStats = await TreasureTriadCardStats.deploy();
@@ -70,6 +70,11 @@ describe("TreasureTriad", function () {
 
     });
 
+    it('Cannot call initialize() more than once', async function () {
+        gridSize = 3
+        await expect(tTriad.initialize(gridSize))
+            .to.be.revertedWith("Initializable: contract is already initialized");
+    });
 
     it("Stakes and looks up cards (ox, cow, donkey) with correct stats", async function () {
 
@@ -102,6 +107,38 @@ describe("TreasureTriad", function () {
         expect(donkey.n.toNumber()).to.equal(5)
     })
 
+    it("Staking a card on a cell with prexisting card reverts", async function () {
+        let player_legion = Player.assassin
+        await tTriad.stakeTreasureCard(0, 0, "ox", Player.nature);
+        // try add another card on top of existing card
+        let tx2 = tTriad.stakeTreasureCard(0, 0, "grin", player_legion);
+        await expect(tx2).to.be.revertedWith("Cell Occupied");
+    })
+
+    it("Staking cards in cells outside of row indexes 0-2 reverts", async function () {
+        // https://github.com/NomicFoundation/hardhat/issues/2234
+        // Issues with revertWith messages matching on things they shouldn't
+        let player_legion = Player.assassin
+        expect(tTriad.stakeTreasureCard(-1, 0, "ox", player_legion))
+            .to.be.revertedWith("row must be >= 0");
+
+        expect(
+            tTriad.stakeTreasureCard(3, 0, "grin", player_legion)
+        ).to.be.revertedWith("row must be < gridRows");
+    })
+
+    it("Staking cards in cells outside of column indexes 0-2 reverts", async function () {
+        // https://github.com/NomicFoundation/hardhat/issues/2234
+        // Issues with revertWith messages matching on things they shouldn't
+        let player_legion = Player.assassin
+        expect(
+            tTriad.stakeTreasureCard(0, -1, "grin", player_legion)
+        ).to.be.revertedWith("col must be >= 0");
+
+        expect(
+            tTriad.stakeTreasureCard(0, 3, "grin", player_legion)
+        ).to.be.revertedWith("col must be < gridCols");
+    })
 
     it("Nature draws 3 cards without replacement", async function () {
 
