@@ -71,12 +71,12 @@ contract TreasureTriad is Initializable {
     uint public gridCols;
 
     int public convertedCards;
-    // convertedCards determine your drop rate
-    // e.g. [0 => +3%, 1 => 6%, 2 => 9%, 3 => 12%]
+    // convertedCards boost your base drop rate
+    // e.g. [0 => 0%, 1 => +x%, 2 => +y%, 3 => z%]
 
     int public corruptedCellCount;
-    // if corruption > 0, put legion in stasis for 1 day
-    // for every point of corruption
+    // if corruption == 1, put legion in stasis for x hours
+    // if corruption == 2, put legion in stasis for y hours
 
 
     function initialize(uint _gridSize) public initializer {

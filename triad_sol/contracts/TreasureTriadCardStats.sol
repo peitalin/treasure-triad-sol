@@ -614,11 +614,13 @@ contract TreasureTriadCardStats {
         ];
 
         legionAffinities[Player.numeraire] = [
-            Affinity.arcana
+            Affinity.arcana,
+            Affinity.alchemy
         ];
 
         legionAffinities[Player.riverman] = [
-            Affinity.brewing
+            Affinity.brewing,
+            Affinity.enchanting
         ];
 
         // setLegionAffinities(Player.common, Affinity[]);
