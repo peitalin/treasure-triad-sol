@@ -1,13 +1,9 @@
-__pycache__/
-triad_py/*.pyc
-
-triad_sol/node_modules/
-triad_sol/.env
-triad_sol/coverage
-triad_sol/coverage.json
-triad_sol/typechain
-triad_sol/typechain-types/
+node_modules
+.env
+coverage
+coverage.json
+typechain
 
 #Hardhat files
-triad_sol/cache
-triad_sol/artifacts
+cache
+artifacts

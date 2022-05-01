@@ -13,6 +13,17 @@ Treasure staking puzzle game
 - Or "Nature" and "user" take turns placing 1 card down each
 
 
+
+### Solidity demo
+
+`npx hardhat test` runs the same steps as the python script and checks that cards are flipped each step
+
+```
+yarn install
+npx hardhat compile
+npx hardhat test
+```
+
 ### Python demo
 install libraries
 ```
@@ -22,16 +33,4 @@ pip3 install termcolor
 run Treasure Triad demo
 ```
 python3 ./triad_py/__init__.py
-```
-
-
-### Solidity demo
-
-`npx hardhat test` runs the same steps as the python script and checks that cards are flipped each step
-
-```
-cd triad_sol
-yarn install
-npx hardhat compile
-npx hardhat test
 ```
